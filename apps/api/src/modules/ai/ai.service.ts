@@ -16,7 +16,7 @@ interface PatientContext {
   insulinLogged: boolean;
 }
 
-interface InsightDraft {
+export interface InsightDraft {
   type: InsightType;
   severity: Severity;
   title: string;
