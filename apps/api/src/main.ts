@@ -2,8 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
-import { json } from 'express';
-import * as express from 'express';
+import express, { type Request, type Response, json } from 'express';
 import { AppModule } from './app.module';
 
 const expressApp = express();
@@ -28,7 +27,7 @@ async function bootstrap(): Promise<INestApplication> {
 }
 
 // Vercel serverless handler
-export default async function handler(req: express.Request, res: express.Response) {
+export default async function handler(req: Request, res: Response) {
   try {
     await bootstrap();
     expressApp(req, res);
