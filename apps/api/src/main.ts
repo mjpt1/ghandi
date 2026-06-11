@@ -1,35 +1,44 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import { json } from 'express';
+import * as express from 'express';
 import { AppModule } from './app.module';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+const expressApp = express();
+let cachedApp: INestApplication | null = null;
 
-  // حد بدنه برای آپلود base64 عکس غذا
+async function bootstrap(): Promise<INestApplication> {
+  if (cachedApp) return cachedApp;
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
   app.use(json({ limit: '8mb' }));
-
-  // ---------- امنیت ----------
   app.use(helmet());
   app.enableCors({
     origin: process.env.WEB_ORIGIN?.split(',') ?? ['http://localhost:3000'],
     credentials: true,
   });
-
-  // ---------- اعتبارسنجی سراسری ----------
   app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,            // حذف فیلدهای ناشناخته
-      forbidNonWhitelisted: true, // خطا برای فیلد اضافی
-      transform: true,
-    }),
+    new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
   );
-
   app.setGlobalPrefix('api/v1');
-
-  const port = Number(process.env.API_PORT ?? 4000);
-  await app.listen(port);
-  console.log(`🚀 Glucia API → http://localhost:${port}/api/v1`);
+  await app.init();
+  cachedApp = app;
+  return app;
 }
-bootstrap();
+
+// Vercel serverless handler
+export default async function handler(req: express.Request, res: express.Response) {
+  await bootstrap();
+  expressApp(req, res);
+}
+
+// Local development
+if (require.main === module) {
+  bootstrap().then(() => {
+    const port = Number(process.env.API_PORT ?? 4000);
+    expressApp.listen(port, () => {
+      console.log(`🚀 Glucia API → http://localhost:${port}/api/v1`);
+    });
+  });
+}
