@@ -1,0 +1,59 @@
+@import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: 242 246 251;
+  --bg2: 255 255 255;
+  --card: 255 255 255;
+  --card-br: 15 42 80;
+  --txt: 19 32 58;
+  --txt2: 93 106 133;
+  --glow: 13 148 136;
+}
+
+.dark {
+  --bg: 7 12 27;
+  --bg2: 11 18 38;
+  --card: 255 255 255;
+  --card-br: 255 255 255;
+  --txt: 232 237 247;
+  --txt2: 139 148 171;
+  --glow: 45 212 191;
+}
+
+body {
+  background: rgb(var(--bg));
+  color: rgb(var(--txt));
+  font-family: 'Vazirmatn', sans-serif;
+  font-feature-settings: 'ss01';
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(900px 500px at 85% -10%, rgb(var(--glow) / 0.22), transparent 60%),
+    radial-gradient(700px 450px at 5% 110%, rgba(56, 189, 248, 0.13), transparent 60%);
+}
+
+@layer components {
+  .glass-card {
+    @apply rounded-card border p-6 backdrop-blur-xl transition-transform duration-200 hover:-translate-y-0.5;
+    background: rgb(var(--card) / 0.05);
+    border-color: rgb(var(--card-br) / 0.09);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  }
+  :not(.dark) .glass-card {
+    background: rgb(var(--card) / 0.75);
+    border-color: rgb(var(--card-br) / 0.08);
+    box-shadow: 0 20px 45px rgba(30, 60, 110, 0.1);
+  }
+  .txt2 {
+    color: rgb(var(--txt2));
+  }
+}
