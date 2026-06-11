@@ -29,8 +29,16 @@ async function bootstrap(): Promise<INestApplication> {
 
 // Vercel serverless handler
 export default async function handler(req: express.Request, res: express.Response) {
-  await bootstrap();
-  expressApp(req, res);
+  try {
+    await bootstrap();
+    expressApp(req, res);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('[bootstrap error]', msg);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Bootstrap failed', detail: msg });
+    }
+  }
 }
 
 // Local development
